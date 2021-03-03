@@ -30,6 +30,11 @@ val typography = Typography(
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp
     ),
+    h3 = TextStyle(
+        fontFamily = FontFamily(Font(R.font.olivier_demo)),
+        fontWeight = FontWeight.Bold,
+        fontSize = 38.sp
+    ),
     h5 = TextStyle(
         fontFamily = FontFamily(Font(R.font.olivier_demo)),
         fontWeight = FontWeight.SemiBold,

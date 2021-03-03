@@ -14,8 +14,25 @@ class PuppiesViewModel : ViewModel() {
     private val _content = MutableStateFlow<UiModel>(UiModel.Puppies(MOCKS))
     val content: LiveData<UiModel> = _content.asLiveData(viewModelScope.coroutineContext)
 
+    fun onPuppyClicked(id: String) {
+        _content.value = UiModel.PuppyDetails(MOCKS.first { it.id == id })
+    }
+
+    fun onPuppyDetailsBackClicked() {
+        _content.value = UiModel.Puppies(MOCKS)
+    }
+
+    fun onBackPressed(): Boolean {
+        // FIXME: this is a dirty hack, imo
+        return if (_content.value is UiModel.PuppyDetails) {
+            onPuppyDetailsBackClicked()
+            true
+        } else false
+    }
+
     sealed class UiModel {
         data class Puppies(val puppies: List<Puppy>) : UiModel()
+        data class PuppyDetails(val puppy: Puppy) : UiModel()
     }
 
     data class Puppy(

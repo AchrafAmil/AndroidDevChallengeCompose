@@ -38,6 +38,9 @@ android {
 
     kotlinOptions {
         jvmTarget = "1.8"
+        freeCompilerArgs += [
+                '-Xopt-in=androidx.compose.ui.ExperimentalComposeUiApi',
+        ]
     }
 
     buildFeatures {
@@ -88,6 +91,7 @@ dependencies {
     implementation "androidx.compose.ui:ui-viewbinding:1.0.0-beta01"
 
     implementation "dev.chrisbanes.accompanist:accompanist-coil:0.6.1"
+    implementation "androidx.constraintlayout:constraintlayout-compose:1.0.0-alpha03"
 
     testImplementation 'junit:junit:4.13.2'
 
