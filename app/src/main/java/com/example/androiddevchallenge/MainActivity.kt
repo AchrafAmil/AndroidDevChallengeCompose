@@ -17,30 +17,75 @@ package com.example.androiddevchallenge
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.example.androiddevchallenge.ui.PuppiesScreen
+import com.example.androiddevchallenge.ui.PuppiesViewModel
+import com.example.androiddevchallenge.ui.PuppiesViewModel.Companion.MOCKS
+import com.example.androiddevchallenge.ui.PuppyDetailsScreen
 import com.example.androiddevchallenge.ui.theme.MyTheme
 
 class MainActivity : AppCompatActivity() {
+    private val viewModel: PuppiesViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MyTheme {
-                MyApp()
+                val state = viewModel.content.observeAsState()
+                MyApp(
+                    state,
+                    onPuppyClicked = viewModel::onPuppyClicked,
+                    onBackFromDetails = viewModel::onPuppyDetailsBackClicked,
+                )
             }
+        }
+    }
+
+    override fun onBackPressed() {
+        if (!viewModel.onBackPressed()) {
+            super.onBackPressed()
         }
     }
 }
 
 // Start building your app here!
 @Composable
-fun MyApp() {
-    Surface(color = MaterialTheme.colors.background) {
-        Text(text = "Ready... Set... GO!")
+fun MyApp(
+    state: State<PuppiesViewModel.UiModel?>,
+    onPuppyClicked: (puppyId: String) -> Unit = { },
+    onBackFromDetails: () -> Unit = { },
+) {
+    Surface(
+        elevation = 0.dp,
+        color = MaterialTheme.colors.background,
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        Crossfade(targetState = state.value) { currentState ->
+            when (currentState) {
+                is PuppiesViewModel.UiModel.Puppies -> PuppiesScreen(
+                    currentState.puppies,
+                    onPuppyClicked
+                )
+                is PuppiesViewModel.UiModel.PuppyDetails -> PuppyDetailsScreen(
+                    currentState.puppy,
+                    onBackFromDetails
+                )
+                null -> Unit /* no-op */
+            }.exhaustive
+        }
     }
 }
 
@@ -48,7 +93,7 @@ fun MyApp() {
 @Composable
 fun LightPreview() {
     MyTheme {
-        MyApp()
+        MyApp(mutableStateOf(PuppiesViewModel.UiModel.Puppies(MOCKS)))
     }
 }
 
@@ -56,6 +101,8 @@ fun LightPreview() {
 @Composable
 fun DarkPreview() {
     MyTheme(darkTheme = true) {
-        MyApp()
+        MyApp(mutableStateOf(PuppiesViewModel.UiModel.Puppies(MOCKS)))
     }
 }
+
+val Unit.exhaustive: Unit get() = this
